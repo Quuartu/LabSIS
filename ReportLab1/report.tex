@@ -1,0 +1,51 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+
+\title{Report Lab 1}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\subsection*{Question 1}
+Sì, il modello stimato nel Caso 1 ($\lambda = 10$, $\beta = 100$) descrive in modo eccellente la dinamica inversa del manipolatore a singolo braccio. Qualitativamente, osservando il grafico di validazione, la traiettoria della coppia predetta $\hat{y}_2$ si sovrappone quasi perfettamente alla coppia reale misurata $y_2$. 
+
+Per dimostrarlo analiticamente, è stato calcolato l'errore percentuale tra le previsioni del modello e il dataset di validazione. Il modello configurato nel Caso 1 ha registrato un errore medio percentuale estremamente basso, pari al \textbf{17.15\%}. Questo scostamento quantitativo così ridotto, specialmente se confrontato con gli errori nettamente superiori ottenuti negli altri due scenari di test, dimostra in modo inequivocabile che il Processo Gaussiano non parametrico ha appreso con successo la complessa dinamica fisica (inerzia, gravità e attriti) che lega lo stato cinematico alla coppia dell'attuatore.
+
+
+\subsection*{Question 2}
+Gli iperparametri $\lambda$ e $\beta$ definiscono la struttura del Kernel di Cauchy e il comportamento generale del modello bayesiano:
+\begin{itemize}
+    \item \textbf{Ruolo di $\lambda$ (Varianza del segnale):} Agisce come un fattore di scala globale per la covarianza. Come si nota nel Caso 2 ($\lambda = 0.1$, $\beta = 100$), un valore troppo basso di $\lambda$ "schiaccia" la stima verso lo zero (la media a priori del processo), portando a una forte sottostima dell'ampiezza della coppia predetta.
+    \item \textbf{Ruolo di $\beta$ (Length-scale):} Determina la rapidità con cui decade la correlazione spaziale al crescere della distanza euclidea tra due vettori di input $x_1$ e $x_2$. Osservando il Caso 3 ($\lambda = 10$, $\beta = 1$), un valore troppo basso di $\beta$ rende il kernel eccessivamente stretto e "miope". Questo rende il modello estremamente sensibile ai dati di addestramento (overfitting), producendo previsioni instabili, rumorose e con una pessima generalizzazione sui dati di validazione.
+\end{itemize}
+\textbf{Teoria del libro:} Dentro il Kernel $K$ ci sono dei parametri specifici (chiamati iperparametri) che definiscono letteralmente la forma e l'accuratezza della tua stima. Nei kernel più famosi del tuo corso troverai sempre due protagonisti:Il parametro di scala ($\lambda$): Regola l'ampiezza dell'incertezza. È il parametro di regolarizzazione per eccellenza. Se è troppo alto, il modello segue troppo i dati (impara il rumore a memoria = overfitting). Se è troppo basso, il modello è troppo rigido e piatto (underfitting).Il parametro di decadimento ($\beta$): È il parametro che garantisce la stabilità BIBO di cui parlavamo prima. Ti dice "quanto velocemente" il sistema dimentica il passato. Se lo sbagli, la tua simulazione potrebbe oscillare all'infinito o morire subito.
+
+\subsection*{Question 3}
+\textbf{Analisi del Caso 1} ($\lambda=10$, $\beta=100$): \\
+Sì, l'azione di feedforward $\tau_f(t)$ migliora drasticamente le prestazioni del sistema di controllo. Analizzando nello specifico il Caso 1 ($\lambda=10$, $\beta=100$), emergono le seguenti differenze sostanziali:
+
+\begin{itemize}
+    \item \textbf{Senza Feedforward (Solo Controllore Proporzionale):} Il sistema reagisce al gradino di riferimento $w(t)$, ma presenta un evidente \textit{errore a regime} (steady-state error). La posizione angolare $q_m(t)$ non raggiunge mai il valore desiderato di 10 rad, assestandosi a un valore inferiore. Questo accade perché un controllore puramente proporzionale necessita di un errore residuo per generare una coppia sufficiente a contrastare forze costanti come la gravità.
+    
+    \item \textbf{Con Feedforward (Modello MAP + Controllore):} L'azione combinata elimina del tutto l'errore a regime, portando la posizione angolare a sovrapporsi perfettamente al riferimento di 10 rad. Il modello di dinamica inversa, avendo appreso dai dati, fornisce in anticipo al sistema l'esatta coppia necessaria per mantenere il braccio in posizione contro la gravità. Di conseguenza, il controllore proporzionale interviene solo per piccole correzioni. Si nota un lievissimo \textit{undershoot} in fase transitoria (intorno a $t=1$), causato dalle derivate brusche del segnale a gradino in ingresso al modello di feedforward, che tuttavia si esaurisce quasi istantaneamente.
+\end{itemize}
+
+In conclusione, l'impiego del modello di dinamica inversa stimato tramite Processo Gaussiano come blocco di feedforward compensa i limiti intrinseci del controllore proporzionale, garantendo un inseguimento della traiettoria (tracking) molto più preciso.
+
+\vspace{0.5cm}
+\textbf{Analisi del Caso 2 ($\lambda=0.1$, $\beta=100$): L'effetto di un modello debole} \\
+Ripetendo la simulazione con i parametri del Caso 2, lo scenario cambia drasticamente. Attivando l'azione di feedforward, si osserva che il sistema non è comunque in grado di inseguire il gradino e mantiene un evidente errore a regime, comportandosi in modo quasi identico al sistema con il solo controllore proporzionale (feedback puro).
+
+Questo fenomeno è giustificato analiticamente dal valore dell'iperparametro $\lambda=0.1$. Essendo un valore molto basso, riduce la varianza del segnale del Processo Gaussiano, "schiacciando" le predizioni del modello verso lo zero. L'azione di feedforward $\tau_f(t)$ generata risulta quindi di ampiezza insufficiente per compensare la forza di gravità e le non linearità del manipolatore. In questo scenario, il feedforward si rivela inefficace e non migliora l'azione di controllo.
+
+\vspace{0.5cm}
+\textbf{Analisi del Caso 3 ($\lambda=10$, $\beta=1$): L'effetto dell'overfitting e della length-scale} \\
+Infine, analizzando i risultati della simulazione con i parametri del Caso 3, si nota che l'azione di feedforward risulta nuovamente inefficace. Il grafico della posizione angolare con feedforward attivato mostra un persistente errore a regime, fallendo nel raggiungere il riferimento desiderato di 10 rad e sovrapponendosi quasi totalmente al comportamento del sistema in puro feedback.
+
+Questo fallimento non è dovuto all'ampiezza del segnale (essendo $\lambda=10$), ma al parametro $\beta=1$, che governa la \textit{length-scale} del Kernel di Cauchy. Un valore di $\beta$ così ridotto fa sì che la correlazione spaziale tra i dati decada in modo estremamente rapido al crescere della distanza euclidea tra i vettori di input. In termini di apprendimento, il Processo Gaussiano va in \textit{overfitting} sui dati di training. Quando riceve in ingresso il riferimento target per il feedforward (un'area dello spazio degli stati potenzialmente meno esplorata o distante dai dati di addestramento), il modello valuta la covarianza come nulla e fa collassare la sua predizione verso la media a priori (zero). Di conseguenza, la coppia di compensazione $\tau_f(t)$ fornita è pressappoco nulla, rendendo il blocco di feedforward di fatto assente e ripristinando l'errore a regime tipico del controllore proporzionale.
+\end{document}
