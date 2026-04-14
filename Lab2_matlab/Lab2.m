@@ -4,7 +4,7 @@ clc
 
 %% Model generation / Data generation
 
-N = 200; % length of the data
+N = 8000; % length of the data
 Ts = 1;  % sampling time
 
 % Coefficientes of the actual model (e.g. ARX model):
@@ -59,9 +59,9 @@ orders_arx = [2 2 1];
 m_arx = arx(data,orders_arx);
 
 % Plot the coefficients of the estimated model
-m_arx.a % A(z)
-m_arx.b % B(z)
-m_arx.NoiseVariance % sigma^2
+m_arx.a; % A(z)
+m_arx.b; % B(z)
+m_arx.NoiseVariance; % sigma^2
 
 figure(1)
 bodeplot(m0, m_arx);
@@ -80,10 +80,10 @@ orders_armax = [2 2 1 1];
 m_armax = armax(data,orders_armax);
 
 % Plot the coefficient of the estimated model
-m_armax.a % A(z)
-m_armax.b % B(z)
-m_armax.c % C(z)
-m_armax.NoiseVariance % sigma^2
+m_armax.a; % A(z)
+m_armax.b; % B(z)
+m_armax.c; % C(z)
+m_armax.NoiseVariance; % sigma^2
 
 figure(2)
 bodeplot(m0, m_armax);
@@ -101,9 +101,9 @@ orders_oe = [2 1 1];
 m_oe = oe(data,orders_oe);
 
 % Plot the coefficient of the estimated model
-m_oe.b % B(z)
-m_oe.f % F(z)
-m_oe.NoiseVariance % sigma^2
+m_oe.b; % B(z)
+m_oe.f; % F(z)
+m_oe.NoiseVariance; % sigma^2
 
 figure(3)
 bodeplot(m0, m_oe);
@@ -123,11 +123,11 @@ orders_bj = [2 1 1 2 1];
 m_bj = bj(data,orders_bj);
 
 % Plot the coefficient of the estimated model
-m_bj.b % B(z)
-m_bj.c % C(z)
-m_bj.d % D(z) 
-m_bj.f % F(z)
-m_bj.NoiseVariance % sigma^2
+m_bj.b; % B(z)
+m_bj.c; % C(z)
+m_bj.d; % D(z) 
+m_bj.f; % F(z)
+m_bj.NoiseVariance; % sigma^2
 
 figure(4)
 bodeplot(m0, m_bj);
@@ -156,6 +156,6 @@ for i = 1:4
     err_N = abs(theta_est(i) - theta0(i));
     in_N = err_N <= cert_N;
 
-    fprintf('  [N = 200]  Error: %.4f | Confidence: %.4f | Inclusion: %d\n', err_N, cert_N, in_N);
+    fprintf('  [N = %d]  Error: %.4f | Confidence: %.4f | Inclusion: %d\n', N, err_N, cert_N, in_N);
 end
 
